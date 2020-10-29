@@ -1,0 +1,28 @@
+{
+	"linters": {
+		"TEXT": {
+			"type": "text",
+			"include": ["(\\.txt$)", "(\\.md$)"],
+			"text.max-line-length": 120
+		},
+		"CPPCHECK": {
+			"type": "cppcheck",
+			"include": ["(\\.cpp$)", "(\\.c$)", "(\\.h$)", "(\\.hpp$)"],
+			"bin": "/usr/bin/cppcheck"
+		},
+		"JSON": {
+			"type": "json",
+			"include": ["(^\\.arcconfig$)", "(^\\.arclint$)", "(\\.json$)"]
+		},
+		"MERGE-CONFLICT": {
+			"type": "merge-conflict"
+		},
+		"XML": {
+			"type": "xml",
+			"include": ["(\\.xml$)"]
+		},
+		"SPELLING": {
+			"type": "spelling"
+		}
+	}
+}

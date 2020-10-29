@@ -1,3 +1,4 @@
 {
-	"phabricator.uri": "https://phabricator.sansibit.com/"
+	"phabricator.uri": "https://phabricator.sansibit.com/",
+	"repository.callsign": "SANSIBITCONFIGS"
 }
