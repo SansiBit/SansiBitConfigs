@@ -1,10 +1,5 @@
 {
 	"linters": {
-		"TEXT": {
-			"type": "text",
-			"include": ["(\\.txt$)", "(\\.md$)"],
-			"text.max-line-length": 120
-		},
 		"CPPCHECK": {
 			"type": "cppcheck",
 			"include": ["(\\.cpp$)", "(\\.c$)", "(\\.h$)", "(\\.hpp$)"],
