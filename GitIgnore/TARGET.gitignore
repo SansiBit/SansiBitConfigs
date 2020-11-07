@@ -1,0 +1,50 @@
+# A PROJECT FROM SANSIBIT.COM - EXPLORING WITH FUN!
+# Copyright (C) 2018-2020  SansiBit.com, TsePing Chai
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+# 作者：[TsePing Chai](TsPChai@Outlook.com, SansiBit.com)
+# 日期：Sun 08 Nov 2020 12:38:01 AM CST
+# 规范：SansiBit Guideline Suite V0.0.1
+# 描述：Git Ignore 集合。
+
+# 0. [2020-11-08] [TsePing Chai] CREATED THE FILE.
+
+# Generic.gitignore ############################################################
+.log
+
+# Security.gitignore ###########################################################
+# PuTTY
+*.ppk
+
+# SSH
+.ssh
+
+# System.gitignore #############################################################
+# Linux
+.Trash-*
+
+# Windows
+*.exe
+*.lnk
+*.msi
+*.msix
+$RECYCLE.BIN
+
+# TextEditor.gitignore #########################################################
+# Vim Editor
+[.]*.swp
+
+# Visual Studio Code
+.vscode
