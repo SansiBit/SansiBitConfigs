@@ -15,43 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 # 作者：[TsePing Chai](TsPChai@Outlook.com, SansiBit.com)
-# 日期：Sun 08 Nov 2020 12:38:01 AM CST
+# 日期：Tue 10 Nov 2020 07:34:22 PM CST
 # 规范：SansiBit Guideline Suite V0.0.1
-# 描述：Git Ignore 集合。
+# 描述：VCS 的Git Ignore 配置。
 
-# 0. [2020-11-08] [TsePing Chai] CREATED THE FILE.
-# 1. [2020-11-11] [TsePing Chai] T10: 修复 Generic.gitignore 的错误。
-# 1. [2020-11-11] [TsePing Chai] T8: 添加 VCS.gitignore 配置。
+# 0. [2020-11-10] [TsePing Chai] CREATED THE FILE.
 
-# Generic.gitignore ############################################################
-*.log
-
-# Security.gitignore ###########################################################
-# PuTTY
-*.ppk
-
-# SSH
-.ssh
-
-# System.gitignore #############################################################
-# Linux
-.Trash-*
-
-# Windows
-*.exe
-*.lnk
-*.msi
-*.msix
-$RECYCLE.BIN
-
-# TextEditor.gitignore #########################################################
-# Vim Editor
-[.]*.swp
-
-# Visual Studio Code
-.vscode
-
-# VCS.gitignore ################################################################
 # Diff
 *.diff
 *.patch
