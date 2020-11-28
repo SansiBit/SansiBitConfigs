@@ -23,6 +23,7 @@
 " 0. [2020-11-15] [TsePing Chai] CREATED THE FILE.
 " 1. [2020-11-28] [TsePing Chai] 将 GenericConfigs() 分离成 DefaultConfigs() 和
 "    CoreConfigs()，同时也将 ResetGenericConfigs() 配套分离。
+" 2. [2020-11-29] [TsePing Chai] 设置 showtabline 为始终显示。
 
 if (has("autocmd"))
     autocmd BufRead,BufNewFile * call DefaultConfigs()
@@ -141,6 +142,12 @@ function DefaultConfigs()
     " 插入括号时，短暂地跳转到匹配的对应括号。
     let &showmatch = 1
 
+    " 本选项的值指定何时显示带有标签页标签的行
+    let &showtabline = 2
+    if (&t_Co > 2)
+        highlight TabLineSel cterm=bold ctermfg=White ctermbg=Blue
+    endif
+
     " 如果打开，进行拼写检查。
     "let &spell = 1
 
@@ -176,6 +183,7 @@ function ResetDefaultConfigs()
     set shortmess&
     set showcmd&
     set showmatch&
+    set showtabline&
     set spell&
     set visualbell&
 endfunction
