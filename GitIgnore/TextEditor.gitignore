@@ -20,9 +20,11 @@
 # 描述：文本编辑器的 Git Ignore 配置。
 
 # 0. [2020-11-07] [TsePing Chai] CREATED THE FILE.
+# 1. [2020-11-22] [TsePing Chai] T13: 增加 Vim Editor 备份文件的配置。
 
 # Vim Editor
 [.]*.swp
+*[~]
 
 # Visual Studio Code
 .vscode
