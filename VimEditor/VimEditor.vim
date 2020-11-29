@@ -24,21 +24,73 @@
 " 1. [2020-11-28] [TsePing Chai] 将 GenericConfigs() 分离成 DefaultConfigs() 和
 "    CoreConfigs()，同时也将 ResetGenericConfigs() 配套分离。
 " 2. [2020-11-29] [TsePing Chai] 设置 showtabline 为始终显示。
+" 3. [2020-11-20] [TsePing Chai] 设置 <Leader> 键，并简化快捷键。
 
 if (has("autocmd"))
-    autocmd BufRead,BufNewFile * call DefaultConfigs()
+    autocmd BufRead,BufNewFile * call TurnDefaultConfigsOn()
 endif
 
-nnoremap <F7><C-A> :call CoreConfigs(2, 79)<CR>
-nnoremap <F7><C-R> :call ResetDefaultConfigs()<CR>
-nnoremap <F7><C-W> :set formatoptions+=w<CR>
+let mapleader = ";"
+nnoremap <Leader><C-D> :call DefaultConfigsSwitcher()<CR>
+nnoremap <Leader><C-A> :call CoreConfigsSwitcher()<CR>
+nnoremap <Leader><C-W> :call FormatOptionsSwitcher()<CR>
 
-" 函数：DefaultConfigs
+" 函数调用的开关。
+let default_configs_switcher = 0
+let core_configs_switcher = 0
+let format_options_switcher = 0
+
+" 函数：DefaultConfigsSwitcher
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：开启或重置 DefaultConfigs 配置。
+function DefaultConfigsSwitcher()
+    if (g:default_configs_switcher == 0)
+        call TurnDefaultConfigsOn()
+        let g:default_configs_switcher = 1
+    else
+        call TurnDefaultConfigsOff()
+        let g:default_configs_switcher = 0
+    endif
+endfunction
+
+" 函数：CoreConfigsSwitcher
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：开启或重置 CoreConfigs 配置。
+function CoreConfigsSwitcher()
+    if (g:core_configs_switcher == 0)
+        call TurnCoreConfigsOn(4, 79)
+        let g:core_configs_switcher = 1
+    else
+        call TurnCoreConfigsOff()
+        let g:core_configs_switcher = 0
+    endif
+endfunction
+
+" 函数：FormatOptionsSwitcher
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：formatoptions 是否加入 w 参数。
+function FormatOptionsSwitcher()
+    if (g:format_options_switcher == 0)
+        set formatoptions+=w
+        let g:format_options_switcher = 1
+    else
+        set formatoptions-=w
+        let g:format_options_switcher = 0
+    endif
+endfunction
+
+" 函数：TurnDefaultConfigsOn
 " 参数：N/A
 " 返回：N/A
 " 异常：N/A
 " 描述：该函数配置的参数适用所有文件类型。
-function DefaultConfigs()
+function TurnDefaultConfigsOn()
     " 如果发现文件在 Vim 之外修改过而在 Vim 里面没有的话，自动重新读入。
     let &autoread = 1
 
@@ -52,6 +104,19 @@ function DefaultConfigs()
 
     " 在一行开头按退格键如何处理，这里使用 defaults.vim 的设置。
     let &backspace  = "indent,eol,start"
+
+    " 本选项指示补全的类型和需要扫描的位置。
+    let &complete = ".,w,b,u,t,i,d"
+    " 插入模式补全使用的选项
+    let &completeopt = "menu,preview,noselect"
+    if (has("autocmd"))
+        autocmd InsertCharPre * call AutoOpenCompleteList()
+    endif
+    inoremap <Tab> <C-R>=UsingTableComplete()<CR>
+    if (&t_Co > 2)
+        highlight Pmenu     ctermfg=Black ctermbg=Cyan
+        highlight PmenuSel  ctermfg=White ctermbg=Blue
+    endif
 
     " 一些通常因为缓冲区有未保存的改变而失败的操作，
     " 会弹出对话框，询问你是否想保存当前文件。
@@ -155,15 +220,43 @@ function DefaultConfigs()
     let &visualbell = 1
 endfunction
 
-" 函数：ResetDefaultConfigs
+" 函数：AutoOpenCompleteList
 " 参数：N/A
 " 返回：N/A
 " 异常：N/A
-" 描述：还原 DefaultConfigs() 的配置参数。
-function ResetDefaultConfigs()
+" 描述：输入字母的时候，自动触发补全功能，v:char 来自 InsertCharPre。
+function AutoOpenCompleteList()
+    if (v:char >= 'a' && v:char <= 'z') || (v:char >= 'A' && v:char <= 'Z')
+        if (pumvisible() == 0) " 自动补全的窗口没有弹出，激活弹窗。
+            call feedkeys("\<C-X>\<C-N>", "n")
+        endif
+    endif
+endfunction
+
+" 函数：UsingTableComplete
+" 参数：N/A
+" 返回：返回代表快捷方式的字符串。
+" 异常：N/A
+" 描述：如果自动补全的弹窗存在，使用 <Tab> 自动补全，相当于 CTRL-N 组合键。
+function UsingTableComplete()
+    if (pumvisible())
+        return "\<C-N>"
+    else
+        return "\<Tab>"
+    endif
+endfunction
+
+" 函数：TurnDefaultConfigsOff
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：关闭还原 DefaultConfigs 的配置参数。
+function TurnDefaultConfigsOff()
     set autoread&
     set background&
     set backspace="indent,eol,start"    " 应用 defaults.vim 中的设置。
+    set complete&
+    set completeopt&
     set confirm&
     set cursorline&
     set encoding&
@@ -188,13 +281,13 @@ function ResetDefaultConfigs()
     set visualbell&
 endfunction
 
-" 函数：CoreConfigs
+" 函数：TurnCoreConfigsOn
 " 参数：table_stop：制表符显示的长度，以及对应的空格数量。
 "       text_width：文本的宽度，超出该宽度应该换行。
 " 返回：N/A
 " 异常：N/A
-" 描述：应用 SansiBitConfigs 核心的配置参数。
-function CoreConfigs(table_stop, text_width)
+" 描述：应用 CoreConfigs 的配置参数。
+function TurnCoreConfigsOn(table_stop, text_width)
     " 开启新行时，从当前行复制缩进距离。
     let &autoindent = 1
 
@@ -236,19 +329,6 @@ function CoreConfigs(table_stop, text_width)
         let &colorcolumn = ""
     end
 
-    " 本选项指示补全的类型和需要扫描的位置。
-    let &complete = ".,w,b,u,t,i,d"
-    " 插入模式补全使用的选项
-    let &completeopt = "menu,preview,noselect"
-    if (has("autocmd"))
-        autocmd InsertCharPre * call AutoOpenCompleteList()
-    endif
-    inoremap <Tab> <C-R>=UsingTableComplete()<CR>
-    if (&t_Co > 2)
-        highlight Pmenu     ctermfg=Black ctermbg=Cyan
-        highlight PmenuSel  ctermfg=White ctermbg=Blue
-    endif
-
     " 当前窗口使用的折叠方式。
     let &foldmethod = "indent"
     " 设置屏幕行数，超过该值的折叠可以关闭。
@@ -264,38 +344,12 @@ function CoreConfigs(table_stop, text_width)
     endif
 endfunction
 
-" 函数：AutoOpenCompleteList
+" 函数：TurnCoreConfigsOff
 " 参数：N/A
 " 返回：N/A
 " 异常：N/A
-" 描述：输入字母的时候，自动触发补全功能，v:char 来自 InsertCharPre。
-function AutoOpenCompleteList()
-    if (v:char >= 'a' && v:char <= 'z') || (v:char >= 'A' && v:char <= 'Z')
-        if (pumvisible() == 0) " 自动补全的窗口没有弹出，激活弹窗。
-            call feedkeys("\<C-X>\<C-N>", "n")
-        endif
-    endif
-endfunction
-
-" 函数：UsingTableComplete
-" 参数：N/A
-" 返回：返回代表快捷方式的字符串。
-" 异常：N/A
-" 描述：如果自动补全的弹窗存在，使用 <Tab> 自动补全，相当于 CTRL-N 组合键。
-function UsingTableComplete()
-    if (pumvisible())
-        return "\<C-N>"
-    else
-        return "\<Tab>"
-    endif
-endfunction
-
-" 函数：ResetCoreConfigs
-" 参数：N/A
-" 返回：N/A
-" 异常：N/A
-" 描述：还原 CoreConfigs() 的配置参数。
-function ResetCoreConfigs()
+" 描述：还原 CoreConfigs 的配置参数。
+function TurnCoreConfigsOff()
     set autoindent&
     set shiftwidth&
     set expandtab&
@@ -307,8 +361,6 @@ function ResetCoreConfigs()
     set breakindentopt&
     set linebreak&
     set colorcolumn&
-    set complete&
-    set completeopt&
     set foldmethod&
     set foldminlines&
     set list&
@@ -321,7 +373,7 @@ endfunction
 " 异常：N/A
 " 描述：应用 SansiBitConfigs 核心的配置参数。
 function ANSICAndCPlusPlus()
-    call CoreConfigs(2, 79)
+    call TurnCoreConfigsOn(2, 79)
 
     " 开启新行时使用自动缩进。适用于 C 这样的程序，但或许也能用于其它语言。
     " 'cinoptions' 影响 'cindent' 重新缩进 C 程序行的方式。
