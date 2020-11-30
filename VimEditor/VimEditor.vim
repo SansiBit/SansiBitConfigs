@@ -24,7 +24,9 @@
 " 1. [2020-11-28] [TsePing Chai] 将 GenericConfigs() 分离成 DefaultConfigs() 和
 "    CoreConfigs()，同时也将 ResetGenericConfigs() 配套分离。
 " 2. [2020-11-29] [TsePing Chai] 设置 showtabline 为始终显示。
-" 3. [2020-11-20] [TsePing Chai] 设置 <Leader> 键，并简化快捷键。
+" 3. [2020-11-30] [TsePing Chai] 设置 <Leader> 键，并简化快捷键。
+" 4. [2020-12-01] [TsePing Chai] 增加 InsertTextAtCurrentPosition() 函数；
+"    增加 formatoptions 的状态提示；增加插入当前时间的快捷方式。
 
 if (has("autocmd"))
     autocmd BufRead,BufNewFile * call TurnDefaultConfigsOn()
@@ -34,11 +36,12 @@ let mapleader = ";"
 nnoremap <Leader><C-D> :call DefaultConfigsSwitcher()<CR>
 nnoremap <Leader><C-A> :call CoreConfigsSwitcher()<CR>
 nnoremap <Leader><C-W> :call FormatOptionsSwitcher()<CR>
+nnoremap <Leader><C-T> :call InsertTextAtCurrentPosition(strftime("%Y-%m-%d"))<CR>
 
 " 函数调用的开关。
-let default_configs_switcher = 0
-let core_configs_switcher = 0
-let format_options_switcher = 0
+let g:default_configs_switcher = 0
+let g:core_configs_switcher = 0
+let g:format_options_switcher = 0
 
 " 函数：DefaultConfigsSwitcher
 " 参数：N/A
@@ -77,11 +80,24 @@ endfunction
 " 描述：formatoptions 是否加入 w 参数。
 function FormatOptionsSwitcher()
     if (g:format_options_switcher == 0)
-        set formatoptions+=w
+        set formatoptions-=w
         let g:format_options_switcher = 1
     else
-        set formatoptions-=w
+        set formatoptions+=w
         let g:format_options_switcher = 0
+    endif
+endfunction
+
+" 函数：FormatOptionsStatus
+" 参数：N/A
+" 返回：如果 formatoptions 带有“w”，返回“,+W”，否则返回“,-W”。
+" 异常：N/A
+" 描述：formatoptions 是否加入 w 参数。
+function FormatOptionsStatus()
+    if (g:format_options_switcher == 0)
+        return ",+W"
+    else
+        return ",-W"
     endif
 endfunction
 
@@ -94,7 +110,7 @@ function TurnDefaultConfigsOn()
     " 如果发现文件在 Vim 之外修改过而在 Vim 里面没有的话，自动重新读入。
     let &autoread = 1
 
-    " xterm             PuTTY Xshell Terminal 
+    " xterm             PuTTY Xshell Terminal
     " xterm-256color    WSL
     " 因为 Vim 将上述终端的 'background' 默认设置为 light，效果不佳，
     " 所以改为 dark 以更好地显示文本色彩。
@@ -149,7 +165,7 @@ function TurnDefaultConfigsOn()
     " 1 不要在单字母单词后分行。如有可能，在它之前分行。
     " j 在合适的场合，连接行时删除注释前导符。
     " p 不在句号后的单个空白上断行。
-    let &formatoptions = "t,c,q,a,n,m,M,1,j,p"
+    let &formatoptions = "t,c,q,a,n,m,M,1,j,p,w"
 
     " 如果有上一个搜索模式，高亮它的所有匹配。
     let &hlsearch = 1
@@ -177,6 +193,7 @@ function TurnDefaultConfigsOn()
     " %P: 行数计算在文件位置的百分比，如同 CTRL-G 给出的那样。
     let l:statusline_array = [
     \   "%f", "%M", "%R", "%H", "%W", "%Y",
+    \   "%{FormatOptionsStatus()}",
     \   "\ (%{strftime(\"%Y.%m.%d\ %T\", getftime(expand(\"%:p\")))})",
     \   "%=",
     \   "0x%B", "\ %l/%L", "\ %c", "\ %P"
@@ -298,7 +315,7 @@ function TurnCoreConfigsOn(table_stop, text_width)
     " 如果打开，行首的 <Tab> 根据 ’shiftwidth’ 插入空白。
     let &smarttab = 1
     " 执行编辑操作，如插入 <Tab> 或者使用 <BS> 时，把 <Tab> 算作空格的数目。
-    let &softtabstop = 1
+    "let &softtabstop = 1
     " 文件里的 <Tab> 代表的空格数。
     let &tabstop = a:table_stop
 
@@ -383,4 +400,24 @@ function ANSICAndCPlusPlus()
 
     " 形成配对的字符。
     let &matchpairs = "(:),f:g,[:],<,>"
+endfunction
+
+" 函数：InsertTextAtCurrentPosition
+" 参数：insert_text: 将要插入的字符串。
+" 返回：N/A
+" 异常：N/A
+" 描述：在当前位置插入文字；插入文字后，光标在插入文字的后面。主要的实现方法是
+" 将当前行以光标为界，拆分成前后两个部分，并与待插入文本组成目标字符串，整体替
+" 换当前行的内容。
+function InsertTextAtCurrentPosition(insert_text)
+    let l:current_line_num = line('.')
+    let l:current_col_num = col('.')
+    let l:current_line_text = getline('.')
+    let l:modified_line_text = [
+    \   strpart(l:current_line_text, 0, l:current_col_num - 1),
+    \   a:insert_text,
+    \   strpart(l:current_line_text, l:current_col_num - 1)
+    \]
+    call setline(l:current_line_num, join(l:modified_line_text, ""))
+    call cursor(l:current_line_num, l:current_col_num + strlen(a:insert_text))
 endfunction
