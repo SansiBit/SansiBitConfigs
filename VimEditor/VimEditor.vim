@@ -27,9 +27,13 @@
 " 3. [2020-11-30] [TsePing Chai] 设置 <Leader> 键，并简化快捷键。
 " 4. [2020-12-01] [TsePing Chai] 增加 InsertTextAtCurrentPosition() 函数；
 "    增加 formatoptions 的状态提示；增加插入当前时间的快捷方式。
+" 5. [2020-12-01] [TsePing Chai] 增加纯文本的文件模板和配置。
 
 if (has("autocmd"))
     autocmd BufRead,BufNewFile * call TurnDefaultConfigsOn()
+
+    autocmd BufNewFile *.txt,*.md call CreatePlainTextFileConfigs()
+    autocmd BufRead,BufNewFile *.txt,*.md call PlainTextFileConfigs()
 endif
 
 let mapleader = ";"
@@ -384,24 +388,6 @@ function TurnCoreConfigsOff()
     set listchars&
 endfunction
 
-" 函数：ANSICAndCPlusPlus
-" 参数：N/A
-" 返回：N/A
-" 异常：N/A
-" 描述：应用 SansiBitConfigs 核心的配置参数。
-function ANSICAndCPlusPlus()
-    call TurnCoreConfigsOn(2, 79)
-
-    " 开启新行时使用自动缩进。适用于 C 这样的程序，但或许也能用于其它语言。
-    " 'cinoptions' 影响 'cindent' 重新缩进 C 程序行的方式。
-    " 'cinoptions' 的设置符合《SansiBit Guideline Suite V0.0.1》
-    let &cindent    = 1
-    let &cinoptions = "l1,g0.5s,h0.5s,N-s,E-s,i2s,+2s,(0,W4"
-
-    " 形成配对的字符。
-    let &matchpairs = "(:),f:g,[:],<,>"
-endfunction
-
 " 函数：InsertTextAtCurrentPosition
 " 参数：insert_text: 将要插入的字符串。
 " 返回：N/A
@@ -421,3 +407,77 @@ function InsertTextAtCurrentPosition(insert_text)
     call setline(l:current_line_num, join(l:modified_line_text, ""))
     call cursor(l:current_line_num, l:current_col_num + strlen(a:insert_text))
 endfunction
+
+" START PLAIN TEXT FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""
+
+" 函数：PlainTextFileConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：适用于 *.txt 和 *.md 文件的配置。
+function PlainTextFileConfigs()
+    call TurnCoreConfigsOn(4, 79)
+
+    " 行快速插入目录项。
+    nnoremap <Leader><C-I> call InsertTextAtCurrentPosition("1.  [](#)")<CR>
+    " 适用于 Markdown 的自动补齐。
+    inoremap    `   ``<ESC><Insert>
+    inoremap    ``  ``<ESC><Insert>
+    inoremap    ``` ```<CR>```<ESC><UP>$A
+endfunction
+
+" 函数：CreatePlainTextFileConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：适用于创建 *.txt 和 *.md 文件的配置。
+function CreatePlainTextFileConfigs()
+    call setline(1,  "# ")
+    call setline(2,  "")
+    call setline(3,  "作者：[[TsePing Chai](mailto:TsPChai@Outlook.com), SansiBit.com]\\")
+    call setline(4,  "日期：".strftime("%c")."\\")
+    call setline(5,  "许可：CC BY-NC-SA 4.0\\")
+    call setline(6,  "规范：SansiBit Guideline Suite V0.0.1")
+    call setline(7,  "")
+    call setline(8,  "## 摘要")
+    call setline(9, "")
+    call setline(10, "TODO")
+    call setline(11, "")
+    call setline(12, "## 目录")
+    call setline(13, "")
+    call setline(14, "1.  [](#)")
+    call setline(15, "1.  [历史记录](#历史记录)")
+    call setline(16, "")
+    call setline(17, "## ")
+    call setline(18, "")
+    call setline(19, "TODO")
+    call setline(20, "")
+    call setline(21, "## 历史记录")
+    call setline(22, "")
+    call setline(23, "1.  [".strftime("%Y-%m-%d")."] [TsePing Chai] CREATED THE FILE.")
+    call cursor(1, 2)
+endfunction
+
+" END PLAIN TEXT FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""""
+
+" START C/C++ FILE CONFIGURATIONS """""""""""""""""""""""""""""""""""""""""""""
+
+" 函数：ANSICAndCPlusPlus
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：应用 SansiBitConfigs 核心的配置参数。
+function ANSICAndCPlusPlus()
+    call TurnCoreConfigsOn(2, 79)
+
+    " 开启新行时使用自动缩进。适用于 C 这样的程序，但或许也能用于其它语言。
+    " 'cinoptions' 影响 'cindent' 重新缩进 C 程序行的方式。
+    " 'cinoptions' 的设置符合《SansiBit Guideline Suite V0.0.1》
+    let &cindent    = 1
+    let &cinoptions = "l1,g0.5s,h0.5s,N-s,E-s,i2s,+2s,(0,W4"
+
+    " 形成配对的字符。
+    let &matchpairs = "(:),f:g,[:],<,>"
+endfunction
+
+" END C/C++ FILE CONFIGURATIONS """""""""""""""""""""""""""""""""""""""""""""""
