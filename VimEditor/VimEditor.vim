@@ -28,6 +28,7 @@
 " 4. [2020-12-01] [TsePing Chai] 增加 InsertTextAtCurrentPosition() 函数；
 "    增加 formatoptions 的状态提示；增加插入当前时间的快捷方式。
 " 5. [2020-12-01] [TsePing Chai] 增加纯文本的文件模板和配置。
+" 6. [2020-12-02] [TsePing Chai] 增加自动补全各种括号的功能。
 
 if (has("autocmd"))
     autocmd BufRead,BufNewFile * call TurnDefaultConfigsOn()
@@ -239,6 +240,14 @@ function TurnDefaultConfigsOn()
 
     " 使用可视响铃代替鸣叫。显示可视响铃的终端代码由 ’t_vb’ 给出。
     let &visualbell = 1
+
+    " 自动补全各种括号。
+    inoremap    (   ()<ESC><Insert>
+    inoremap    ()  ()<ESC><Insert>
+    inoremap    {   {}<ESC><Insert>
+    inoremap    {}  {}<ESC><Insert>
+    inoremap    [   []<ESC><Insert>
+    inoremap    []  []<ESC><Insert>
 endfunction
 
 " 函数：AutoOpenCompleteList
