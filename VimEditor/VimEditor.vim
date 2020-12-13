@@ -30,6 +30,7 @@
 " 5. [2020-12-01] [TsePing Chai] 增加纯文本的文件模板和配置。
 " 6. [2020-12-02] [TsePing Chai] 增加自动补全各种括号的功能。
 " 7. [2020-12-03] [TsePing Chai] 添加常用文件类型的模板。
+" 8. [2020-12-14] [TsePing Chai] 增加单行注释和反注释的功能。
 
 if (has("autocmd"))
     autocmd BufRead,BufNewFile * call DefaultConfigsSwitcher()
@@ -43,8 +44,9 @@ if (has("autocmd"))
     autocmd BufRead,BufNewFile *.c,*.h,*.cc,*.cpp,*.cxx,*.hpp call ANSICAndCPlusPlusConfigs()
 
     autocmd BufNewFile *.conf call CreateConfFileConfigs()
+    autocmd BufRead,BufNewFile *.conf call ConfConfigs()
     autocmd BufNewFile *.ini call CreateIniFileConfigs()
-    autocmd BufRead,BufNewFile *.conf,*.ini call ConfConfigs()
+    autocmd BufRead,BufNewFile *.ini call IniConfigs()
 
     autocmd BufNewFile *.vim call CreateVimScriptFileConfigs()
     autocmd BufRead,BufNewFile *.vim call VimScriptConfigs()
@@ -274,6 +276,7 @@ function TurnDefaultConfigsOn()
     inoremap    []          []<ESC><Insert>
     inoremap    []<Left>    []<Left>
     inoremap    <           <><ESC><Insert>
+    inoremap    <=          <=
     inoremap    <>          <><ESC><Insert>
     inoremap    <><Left>    <><Left>
 endfunction
@@ -500,6 +503,48 @@ function InsertFunctionComment(comment_flag)
     call cursor(line(".") + 1, 10)
 endfunction
 
+" 函数：CommentCurrentLine
+" 参数：comment_flag: 注释的标识，比如 //（双斜线）和 "（引号）等。
+" 返回：N/A
+" 异常：N/A
+" 描述：如果当前行已经被注释，反注释之；否则注释该行。需要注意的是，该函数无法
+" 处理注释配对的情况，比如无法处理类似 /* SOMETHING */ 的注释行。
+function CommentCurrentLine(comment_flag)
+    " 如果当前行是空行，或长度小于 comment_flag，那么肯定不是注释行，直接注释。
+    if (strlen(getline('.')) < strlen(a:comment_flag) ||
+            \match(getline('.'), '\S') == -1)
+        call setline(line('.'), a:comment_flag . " " . getline('.'))
+        call cursor(line('.'), strlen(a:comment_flag) + 1 + col('.'))
+    else
+        let l:whitespace_num = match(getline('.'), '\S')
+        let l:potential_comment_tag =
+                \strpart(getline('.'), l:whitespace_num, strlen(a:comment_flag))
+        let l:potential_comment_tag_space =
+                \strpart(getline('.'), l:whitespace_num, strlen(a:comment_flag) + 1)
+        let l:potential_comment_tag_space
+        " 如果有效字符的最开始是注释标注，说明是注释行，需要反注释。
+        if (l:potential_comment_tag_space ==# a:comment_flag . " ")
+            let l:modified_line_text = [
+            \   strpart(getline('.'), 0, l:whitespace_num),
+            \   strpart(getline('.'), l:whitespace_num + strlen(a:comment_flag) + 1)
+            \]
+        elseif (l:potential_comment_tag ==# a:comment_flag)
+            let l:modified_line_text = [
+            \   strpart(getline('.'), 0, l:whitespace_num),
+            \   strpart(getline('.'), l:whitespace_num + strlen(a:comment_flag))
+            \]
+        " 否则标识当前行不是注释行，注释之。
+        else
+            let l:modified_line_text = [
+            \   strpart(getline('.'), 0, l:whitespace_num),
+            \   a:comment_flag . " ",
+            \   strpart(getline('.'), l:whitespace_num)
+            \]
+        endif
+        call setline(line('.'), join(l:modified_line_text, ""))
+    endif
+endfunction
+
 " START PLAIN TEXT FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""
 
 " 函数：CreatePlainTextFileConfigs
@@ -627,7 +672,8 @@ function ANSICAndCPlusPlusConfigs()
     let &cinoptions = "l1,g0.5s,h0.5s,N-s,E-s,i2s,+2s,(0,W2s,k2s"
 
     " 适用于 C/C++ 的组合键。
-    nnoremap <Leader><C-K> :call InsertFunctionComment("//")<CR>
+    nnoremap <Leader><C-F> :call InsertFunctionComment("//")<CR>
+    nnoremap <Leader><c-K> :call CommentCurrentLine("//")<CR>
     " 在·<Insert>·模式下自动补齐。
     inoremap    {<CR>       {<CR>}<ESC>O
     inoremap    {}<Left>    {<CR>}<ESC>O
@@ -650,15 +696,6 @@ function CreateConfFileConfigs()
     call InsertCodeFileHeader("#")
 endfunction
 
-" 函数：CreateIniFileConfigs
-" 参数：N/A
-" 返回：N/A
-" 异常：N/A
-" 描述：*.ini 文件模板，比如 PHP 的配置文件。
-function CreateIniFileConfigs()
-    call InsertCodeFileHeader(";")
-endfunction
-
 " 函数：ConfConfigs
 " 参数：N/A
 " 返回：N/A
@@ -669,6 +706,33 @@ function ConfConfigs()
         call TurnCoreConfigsOn(4, 79)
         let g:core_configs_switcher = 1
     endif
+
+    " 适用于 # 注释符的组合键。
+    nnoremap <Leader><C-K> :call CommentCurrentLine("#")<CR>
+endfunction
+
+" 函数：CreateIniFileConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：*.ini 文件模板，比如 PHP 的配置文件。
+function CreateIniFileConfigs()
+    call InsertCodeFileHeader(";")
+endfunction
+
+" 函数：IniConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：适用于配置文件的配置参数。
+function IniConfigs()
+    if (g:core_configs_switcher == 0)
+        call TurnCoreConfigsOn(4, 79)
+        let g:core_configs_switcher = 1
+    endif
+
+    " 适用于 # 注释符的组合键。
+    nnoremap <Leader><C-K> :call CommentCurrentLine(";")<CR>
 endfunction
 
 " END CONF FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""""""""""
@@ -696,7 +760,8 @@ function VimScriptConfigs()
     endif
 
     " 适用于 VimScript 的组合键。
-    nnoremap <Leader><C-K> :call InsertFunctionComment("\"")<CR>
+    nnoremap <Leader><C-F> :call InsertFunctionComment("\"")<CR>
+    nnoremap <Leader><c-K> :call CommentCurrentLine("\"")<CR>
 endfunction
 
 " END VIMSCRIPT FILE CONFIGURATIONS """""""""""""""""""""""""""""""""""""""""""
@@ -736,6 +801,9 @@ function TeXConfigs()
         call TurnCoreConfigsOn(4, 79)
         let g:core_configs_switcher = 1
     endif
+
+    " 适用于 TeX 的组合键。
+    nnoremap <Leader><C-K> :call CommentCurrentLine("%")<CR>
 endfunction
 
 " END TEX FILE CONFIGURATIONS """""""""""""""""""""""""""""""""""""""""""""""""
