@@ -17,9 +17,9 @@
 
 ## 简介
 
-GitIgnore 是 SansiBitConfigs 的子项目之一，为 Git 仓库提供通用的 `.gitignore` 配
-置。项目借鉴了 [GitHub/GitIgnore](https://github.com/github/gitignore)，在其基础
-上进行精简，也加入了一些未被收录的配置项。
+GitIgnore 是 SansiBitConfigs 的子项目之一，为 Git 仓库提供通用的 `.gitignore`
+配置。项目借鉴了 [GitHub/GitIgnore](https://github.com/github/gitignore)，在其
+基础上进行精简，也加入了一些未被收录的配置项。
 
 ## 使用方法
 
