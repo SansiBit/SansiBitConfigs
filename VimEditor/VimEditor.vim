@@ -1,4 +1,4 @@
-" A PROJECT FROM SANSIBIT.COM - EXPLORING WITH FUN!
+" SansiBitConfigs - EXPLORING WITH FUN!
 " Copyright (C) 2018-2020  SansiBit.com, TsePing Chai
 "
 " This program is free software: you can redistribute it and/or modify
@@ -29,12 +29,28 @@
 "    增加 formatoptions 的状态提示；增加插入当前时间的快捷方式。
 " 5. [2020-12-01] [TsePing Chai] 增加纯文本的文件模板和配置。
 " 6. [2020-12-02] [TsePing Chai] 增加自动补全各种括号的功能。
+" 7. [2020-12-03] [TsePing Chai] 添加常用文件类型的模板。
 
 if (has("autocmd"))
-    autocmd BufRead,BufNewFile * call TurnDefaultConfigsOn()
+    autocmd BufRead,BufNewFile * call DefaultConfigsSwitcher()
 
     autocmd BufNewFile *.txt,*.md call CreatePlainTextFileConfigs()
-    autocmd BufRead,BufNewFile *.txt,*.md call PlainTextFileConfigs()
+    autocmd BufRead,BufNewFile *.txt,*.md call PlainTextConfigs()
+
+    autocmd BufNewFile *.h call CreateANSICHeaderFileConfigs()
+    autocmd BufNewFile *.hpp call CreateCPlusPlusHeaderFileConfigs()
+    autocmd BufNewFile *.c,*.cc,*.cpp,*.cxx call CreateCAndCPlusPlusSrcFileConfigs()
+    autocmd BufRead,BufNewFile *.c,*.h,*.cc,*.cpp,*.cxx,*.hpp call ANSICAndCPlusPlusConfigs()
+
+    autocmd BufNewFile *.conf call CreateConfFileConfigs()
+    autocmd BufNewFile *.ini call CreateIniFileConfigs()
+    autocmd BufRead,BufNewFile *.conf,*.ini call ConfConfigs()
+
+    autocmd BufNewFile *.vim call CreateVimScriptFileConfigs()
+    autocmd BufRead,BufNewFile *.vim call VimScriptConfigs()
+
+    autocmd BufNewFile *.tex call CreateTeXFileConfigs()
+    autocmd BufRead,BufNewFile *.tex call TeXConfigs()
 endif
 
 let mapleader = ";"
@@ -43,10 +59,15 @@ nnoremap <Leader><C-A> :call CoreConfigsSwitcher()<CR>
 nnoremap <Leader><C-W> :call FormatOptionsSwitcher()<CR>
 nnoremap <Leader><C-T> :call InsertTextAtCurrentPosition(strftime("%Y-%m-%d"))<CR>
 
+" 用户的基本信息
+let g:user_company  = "SansiBit.com"
+let g:user_name     = "TsePing Chai"
+let g:user_email    = "TsPChai@Outlook.com"
+
 " 函数调用的开关。
-let g:default_configs_switcher = 0
-let g:core_configs_switcher = 0
-let g:format_options_switcher = 0
+let g:default_configs_switcher  = 0
+let g:core_configs_switcher     = 0
+let g:format_options_switcher   = 0
 
 " 函数：DefaultConfigsSwitcher
 " 参数：N/A
@@ -82,7 +103,7 @@ endfunction
 " 参数：N/A
 " 返回：N/A
 " 异常：N/A
-" 描述：formatoptions 是否加入 w 参数。
+" 描述：formatoptions 是否加入 w 参数，formatoptions 初始值是有 w 参数的。
 function FormatOptionsSwitcher()
     if (g:format_options_switcher == 0)
         set formatoptions-=w
@@ -135,8 +156,8 @@ function TurnDefaultConfigsOn()
     endif
     inoremap <Tab> <C-R>=UsingTableComplete()<CR>
     if (&t_Co > 2)
-        highlight Pmenu     ctermfg=Black ctermbg=Cyan
-        highlight PmenuSel  ctermfg=White ctermbg=Blue
+        highlight Pmenu ctermfg=Black ctermbg=Cyan
+        highlight PmenuSel ctermfg=White ctermbg=Blue
     endif
 
     " 一些通常因为缓冲区有未保存的改变而失败的操作，
@@ -170,6 +191,7 @@ function TurnDefaultConfigsOn()
     " 1 不要在单字母单词后分行。如有可能，在它之前分行。
     " j 在合适的场合，连接行时删除注释前导符。
     " p 不在句号后的单个空白上断行。
+    " w 行尾的空格指示下一行继续同一个段落，非空白字符结束的行结束一个段落。
     let &formatoptions = "t,c,q,a,n,m,M,1,j,p,w"
 
     " 如果有上一个搜索模式，高亮它的所有匹配。
@@ -199,7 +221,7 @@ function TurnDefaultConfigsOn()
     let l:statusline_array = [
     \   "%f", "%M", "%R", "%H", "%W", "%Y",
     \   "%{FormatOptionsStatus()}",
-    \   "\ (%{strftime(\"%Y.%m.%d\ %T\", getftime(expand(\"%:p\")))})",
+    \   "\ (%{strftime(\"%Y-%m-%d\ %T\", getftime(expand(\"%:p\")))})",
     \   "%=",
     \   "0x%B", "\ %l/%L", "\ %c", "\ %P"
     \]
@@ -241,13 +263,19 @@ function TurnDefaultConfigsOn()
     " 使用可视响铃代替鸣叫。显示可视响铃的终端代码由 ’t_vb’ 给出。
     let &visualbell = 1
 
-    " 自动补全各种括号。
-    inoremap    (   ()<ESC><Insert>
-    inoremap    ()  ()<ESC><Insert>
-    inoremap    {   {}<ESC><Insert>
-    inoremap    {}  {}<ESC><Insert>
-    inoremap    [   []<ESC><Insert>
-    inoremap    []  []<ESC><Insert>
+    " 在·<Insert>·模式下自动补齐。
+    inoremap    (           ()<ESC><Insert>
+    inoremap    ()          ()<ESC><Insert>
+    inoremap    ()<Left>    ()<Left>
+    inoremap    {           {}<ESC><Insert>
+    inoremap    {}          {}<ESC><Insert>
+    inoremap    {}<Left>    {}<Left>
+    inoremap    [           []<ESC><Insert>
+    inoremap    []          []<ESC><Insert>
+    inoremap    []<Left>    []<Left>
+    inoremap    <           <><ESC><Insert>
+    inoremap    <>          <><ESC><Insert>
+    inoremap    <><Left>    <><Left>
 endfunction
 
 " 函数：AutoOpenCompleteList
@@ -330,16 +358,17 @@ function TurnCoreConfigsOn(table_stop, text_width)
     " 执行编辑操作，如插入 <Tab> 或者使用 <BS> 时，把 <Tab> 算作空格的数目。
     "let &softtabstop = 1
     " 文件里的 <Tab> 代表的空格数。
-    let &tabstop = a:table_stop
+    "let &tabstop = a:table_stop
 
     " 插入文本的最大宽度。
     let &textwidth = a:text_width
     " 开启回绕行保持视觉上的缩进 (和该行开始处相同的空白数目)，
     " 从而保留文本的水平块。为了区分回绕行与正常缩进行，需要额外缩进，
     " 并显示 'showbreak' 的值。
-    let &breakindent    = 1
+    let &breakindent = 1
+    " nr2char(shiftwidth() + 48) 相当于将 shiftwidth 的值转换成字符串。
     let &breakindentopt = "shift:" + nr2char(shiftwidth() + 48) + ",sbr"
-    let &showbreak      = ">"
+    let &showbreak = ">"
     " 如果打开，Vim 会在 ’breakat’ 里的字符上，
     " 而不是在屏幕上可以显示的最后一个字符上回绕长行。
     let &linebreak = 1
@@ -347,7 +376,9 @@ function TurnCoreConfigsOn(table_stop, text_width)
     " 'colorcolumn' 是逗号分隔的屏幕列的列表。
     " 这些列会用 ColorColumn hl-ColorColumn 高亮。
     if (a:text_width == 79)
-        let &colorcolumn = "+1,+41"
+        let &colorcolumn = "+1,+21"
+    elseif (a:text_width == 99)
+        let &colorcolumn = "+1,+21"
     elseif (a:text_width == 119)
         let &colorcolumn = "+1"
     endif
@@ -369,8 +400,8 @@ function TurnCoreConfigsOn(table_stop, text_width)
     " list 模式下显示用的字符。
     let &listchars = "eol:¶,tab:→→,trail:·,extends:<,precedes:>,nbsp:+"
     if (&t_Co > 2)
-        highlight NonText       cterm=bold ctermfg=Black ctermbg=White
-        highlight SpecialKey    cterm=bold ctermfg=Black ctermbg=White
+        highlight NonText cterm=bold ctermfg=Black ctermbg=White
+        highlight SpecialKey cterm=bold ctermfg=Black ctermbg=White
     endif
 endfunction
 
@@ -417,39 +448,76 @@ function InsertTextAtCurrentPosition(insert_text)
     call cursor(l:current_line_num, l:current_col_num + strlen(a:insert_text))
 endfunction
 
-" START PLAIN TEXT FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""
-
-" 函数：PlainTextFileConfigs
-" 参数：N/A
+" 函数：InsertCodeFileHeader
+" 参数：comment_flag: 注释的标识，比如 //（双斜线）和 "（引号）等。
 " 返回：N/A
 " 异常：N/A
-" 描述：适用于 *.txt 和 *.md 文件的配置。
-function PlainTextFileConfigs()
-    call TurnCoreConfigsOn(4, 79)
-
-    " 行快速插入目录项。
-    nnoremap <Leader><C-I> call InsertTextAtCurrentPosition("1.  [](#)")<CR>
-    " 适用于 Markdown 的自动补齐。
-    inoremap    `   ``<ESC><Insert>
-    inoremap    ``  ``<ESC><Insert>
-    inoremap    ``` ```<CR>```<ESC><UP>$A
+" 描述：写入代码文件的头部，包括以下几个部分：
+"
+"   1. AGPLv3 的声明；
+"   2. 文件的基本属性；
+"   3. 文件的初始化历史。
+"
+" 函数使用前应该初始化 g:user_company、g:user_name、g:user_email。
+function InsertCodeFileHeader(comment_flag)
+    call setline(1,  a:comment_flag . "  - EXPLORING WITH FUN!")
+    call setline(2,  a:comment_flag . " Copyright (C) " . strftime("%Y") . "  " . g:user_name . ", " . g:user_company)
+    call setline(3,  a:comment_flag . "")
+    call setline(4,  a:comment_flag . " This program is free software: you can redistribute it and/or modify")
+    call setline(5,  a:comment_flag . " it under the terms of the GNU Affero General Public License as")
+    call setline(6,  a:comment_flag . " published by the Free Software Foundation, either version 3 of the")
+    call setline(7,  a:comment_flag . " License, or (at your option) any later version.")
+    call setline(8,  a:comment_flag . "")
+    call setline(9,  a:comment_flag . " This program is distributed in the hope that it will be useful,")
+    call setline(10, a:comment_flag . " but WITHOUT ANY WARRANTY; without even the implied warranty of")
+    call setline(11, a:comment_flag . " MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the")
+    call setline(12, a:comment_flag . " GNU Affero General Public License for more details.")
+    call setline(13, a:comment_flag . "")
+    call setline(14, a:comment_flag . " You should have received a copy of the GNU Affero General Public License")
+    call setline(15, a:comment_flag . " along with this program.  If not, see <https://www.gnu.org/licenses/>.")
+    call setline(16, "")
+    call setline(17, a:comment_flag . " 作者：[" . g:user_name . "](" . g:user_email . ", " . g:user_company . ")")
+    call setline(18, a:comment_flag . " 日期：" . strftime("%c"))
+    call setline(19, a:comment_flag . " 规范：SansiBit Guideline Suite V0.0.1")
+    call setline(20, a:comment_flag . " 描述：")
+    call setline(21, "")
+    call setline(22, a:comment_flag . " 0. [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATED THE FILE.")
+    call setline(23, "")
+    call cursor(1, strlen(a:comment_flag) + 1)
 endfunction
+
+" 函数：InsertFunctionComment
+" 参数：comment_flag: 注释的标识，比如 //（双斜线）和 "（引号）等。
+" 返回：N/A
+" 异常：N/A
+" 描述：在光标所在行的下一行插入函数注释。
+function InsertFunctionComment(comment_flag)
+    call append(line(".") + 0, a:comment_flag . " 函数：")
+    call append(line(".") + 1, a:comment_flag . " 参数：N/A")
+    call append(line(".") + 2, a:comment_flag . " 返回：N/A")
+    call append(line(".") + 3, a:comment_flag . " 异常：N/A")
+    call append(line(".") + 4, a:comment_flag . " 描述：")
+    call cursor(line(".") + 1, 10)
+endfunction
+
+" START PLAIN TEXT FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""
 
 " 函数：CreatePlainTextFileConfigs
 " 参数：N/A
 " 返回：N/A
 " 异常：N/A
 " 描述：适用于创建 *.txt 和 *.md 文件的配置。
+" 函数使用前应该初始化 g:user_company、g:user_name、g:user_email。
 function CreatePlainTextFileConfigs()
     call setline(1,  "# ")
     call setline(2,  "")
-    call setline(3,  "作者：[[TsePing Chai](mailto:TsPChai@Outlook.com), SansiBit.com]\\")
-    call setline(4,  "日期：".strftime("%c")."\\")
+    call setline(3,  "作者：[[" . g:user_name . "](mailto:" . g:user_email . "), " . g:user_company . "]\\")
+    call setline(4,  "日期：" . strftime("%c") . "\\")
     call setline(5,  "许可：CC BY-NC-SA 4.0\\")
     call setline(6,  "规范：SansiBit Guideline Suite V0.0.1")
     call setline(7,  "")
     call setline(8,  "## 摘要")
-    call setline(9, "")
+    call setline(9,  "")
     call setline(10, "TODO")
     call setline(11, "")
     call setline(12, "## 目录")
@@ -463,30 +531,211 @@ function CreatePlainTextFileConfigs()
     call setline(20, "")
     call setline(21, "## 历史记录")
     call setline(22, "")
-    call setline(23, "1.  [".strftime("%Y-%m-%d")."] [TsePing Chai] CREATED THE FILE.")
+    call setline(23, "1.  [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATED THE FILE.")
+    call setline(24, "")
     call cursor(1, 2)
+endfunction
+
+" 函数：PlainTextConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：适用于 *.txt 和 *.md 文件的配置。
+function PlainTextConfigs()
+    if (g:core_configs_switcher = 0)
+        call TurnCoreConfigsOn(4, 79)
+        let g:core_configs_switcher = 1
+    endif
+
+    " 行快速插入目录项。
+    nnoremap <Leader><C-I> :call InsertTextAtCurrentPosition("1.  [](#)")<CR>
+    " 适用于 Markdown 的自动补齐。
+    inoremap    `           ``<ESC><Insert>
+    inoremap    ``          ``<ESC><Insert>
+    inoremap    ``<Left>    ``<Left>
+    inoremap    ```         ```<CR>```<ESC><UP>$A
 endfunction
 
 " END PLAIN TEXT FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""""
 
 " START C/C++ FILE CONFIGURATIONS """""""""""""""""""""""""""""""""""""""""""""
 
-" 函数：ANSICAndCPlusPlus
+" 函数：CreateANSICHeaderFileConfigs
 " 参数：N/A
 " 返回：N/A
 " 异常：N/A
-" 描述：应用 SansiBitConfigs 核心的配置参数。
-function ANSICAndCPlusPlus()
-    call TurnCoreConfigsOn(2, 79)
+" 描述：ANSI C 头文件（*.h）的模板。
+function CreateANSICHeaderFileConfigs()
+    call InsertCodeFileHeader("//")
+
+    call setline(24, "#ifndef " . toupper(expand("%:t:r")) . "_H")
+    call setline(25, "#define " . toupper(expand("%:t:r")) . "_H")
+    call setline(26, "")
+    call setline(27, "#ifdef __cplusplus")
+    call setline(28, "extern \"C\" {")
+    call setline(29, "#endif")
+    call setline(30, "")
+    call setline(31, "")
+    call setline(32, "")
+    call setline(33, "#ifdef __cplusplus")
+    call setline(34, "}")
+    call setline(35, "#endif")
+    call setline(36, "")
+    call setline(37, "#endif")
+endfunction
+
+" 函数：CreateCPlusPlusHeaderFileConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：C++ 头文件（*.hpp）的模板。
+function CreateCPlusPlusHeaderFileConfigs()
+    call InsertCodeFileHeader("//")
+
+    call setline(24, "#ifndef " . toupper(expand("%:t:r")) . "_HPP")
+    call setline(25, "#define " . toupper(expand("%:t:r")) . "_HPP")
+    call setline(26, "")
+    call setline(27, "")
+    call setline(28, "")
+    call setline(29, "#endif")
+endfunction
+
+" 函数：CreateCAndCPlusPlusSrcFileConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：C/C++ 源码文件的模板。
+function CreateCAndCPlusPlusSrcFileConfigs()
+    call InsertCodeFileHeader("//")
+endfunction
+
+" 函数：ANSICAndCPlusPlusConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：应用 C/C++ 的配置参数。
+function ANSICAndCPlusPlusConfigs()
+    if (g:core_configs_switcher == 0)
+        call TurnCoreConfigsOn(4, 79)
+        let g:CoreConfigsSwitcher = 1
+    endif
 
     " 开启新行时使用自动缩进。适用于 C 这样的程序，但或许也能用于其它语言。
-    " 'cinoptions' 影响 'cindent' 重新缩进 C 程序行的方式。
+    " 'cinoptions' 影响 'cindent' 重新缩进 C/C++ 程序行的方式。
     " 'cinoptions' 的设置符合《SansiBit Guideline Suite V0.0.1》
-    let &cindent    = 1
-    let &cinoptions = "l1,g0.5s,h0.5s,N-s,E-s,i2s,+2s,(0,W4"
+    let &cindent = 1
+    let &cinoptions = "l1,g0.5s,h0.5s,N-s,E-s,i2s,+2s,(0,W2s,k2s"
 
-    " 形成配对的字符。
-    let &matchpairs = "(:),f:g,[:],<,>"
+    " 适用于 C/C++ 的组合键。
+    nnoremap <Leader><C-K> :call InsertFunctionComment("//")<CR>
+    " 在·<Insert>·模式下自动补齐。
+    inoremap    {<CR>       {<CR>}<ESC>O
+    inoremap    {}<Left>    {<CR>}<ESC>O
+    inoremap    <<          <<
+    inoremap    <<Space>    <<Space>
+    inoremap    "           ""<ESC><Insert>
+    inoremap    ""          ""<ESC><Insert>
 endfunction
 
 " END C/C++ FILE CONFIGURATIONS """""""""""""""""""""""""""""""""""""""""""""""
+
+" START CONF FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""""""""
+
+" 函数：CreateConfFileConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：*.conf 文件模板，比如 Apache HTTP Server 的配置文件。
+function CreateConfFileConfigs()
+    call InsertCodeFileHeader("#")
+endfunction
+
+" 函数：CreateIniFileConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：*.ini 文件模板，比如 PHP 的配置文件。
+function CreateIniFileConfigs()
+    call InsertCodeFileHeader(";")
+endfunction
+
+" 函数：ConfConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：适用于配置文件的配置参数。
+function ConfConfigs()
+    if (g:core_configs_switcher == 0)
+        call TurnCoreConfigsOn(4, 79)
+        let g:core_configs_switcher = 1
+    endif
+endfunction
+
+" END CONF FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""""""""""
+
+" START VIMSCRIPT FILE  CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""
+
+" 函数：CreateVimScriptFileConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：VimScript 的文件模板。
+function CreateVimScriptFileConfigs()
+    call InsertCodeFileHeader("\"")
+endfunction
+
+" 函数：VimScriptConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：适用于 VimScript 的配置参数。
+function VimScriptConfigs()
+    if (g:core_configs_switcher == 0)
+        call TurnCoreConfigsOn(4, 79)
+        let g:core_configs_switcher = 1
+    endif
+
+    " 适用于 VimScript 的组合键。
+    nnoremap <Leader><C-K> :call InsertFunctionComment("\"")<CR>
+endfunction
+
+" END VIMSCRIPT FILE CONFIGURATIONS """""""""""""""""""""""""""""""""""""""""""
+
+" START TEX FILE CONFIGURATIONS """""""""""""""""""""""""""""""""""""""""""""""
+
+" 函数：CreateTeXFileConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：TeX 文件类型的模板。
+" 函数使用前应该初始化 g:user_company、g:user_name、g:user_email。
+function CreateTeXFileConfigs()
+    call setline(1,  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    call setline(2,  "% 作者：[" . g:user_name . "](" . g:user_email . ", " . g:user_company . ")")
+    call setline(3,  "% 日期：" . strftime("%c"))
+    call setline(4,  "% 许可：CC BY-NC-SA 4.0")
+    call setline(5,  "% 规范：SansiBit Guideline Suite V0.0.1")
+    call setline(6,  "% 描述：")
+    call setline(7,  "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    call setline(8,  "")
+    call setline(9,  "")
+    call setline(10, "")
+    call setline(11, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    call setline(12, "% 1. [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATED THE FILE.")
+    call setline(13, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    call cursor(6, 9)
+endfunction
+
+" 函数：TeXConfigs
+" 参数：N/A
+" 返回：N/A
+" 异常：N/A
+" 描述：使用于 TeX 的配置参数。
+function TeXConfigs()
+    if (g:core_configs_switcher == 0)
+        call TurnCoreConfigsOn(4, 79)
+        let g:core_configs_switcher = 1
+    endif
+endfunction
+
+" END TEX FILE CONFIGURATIONS """""""""""""""""""""""""""""""""""""""""""""""""
