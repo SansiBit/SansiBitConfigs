@@ -74,4 +74,4 @@ HTTP Server，该软件拥有大量配置参数，完全需要使用者根据自
 ## 历史记录
 
 1.  [2020-11-05] [TsePing Chai] CREATED THE FILE.
-2.  [2020-11-14] [TsePing Chai] 增加“项目列表”，列出 SansiBitConfigs 的子项目。
+1.  [2020-11-14] [TsePing Chai] 增加“项目列表”，列出 SansiBitConfigs 的子项目。
