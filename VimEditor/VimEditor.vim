@@ -444,9 +444,9 @@ function InsertTextAtCurrentPosition(insert_text)
     let l:current_col_num = col('.')
     let l:current_line_text = getline('.')
     let l:modified_line_text = [
-    \   strpart(l:current_line_text, 0, l:current_col_num - 1),
+    \   strpart(l:current_line_text, 0, l:current_col_num),
     \   a:insert_text,
-    \   strpart(l:current_line_text, l:current_col_num - 1)
+    \   strpart(l:current_line_text, l:current_col_num)
     \]
     call setline(l:current_line_num, join(l:modified_line_text, ""))
     call cursor(l:current_line_num, l:current_col_num + strlen(a:insert_text))
@@ -578,7 +578,6 @@ function CreatePlainTextFileConfigs()
     call setline(21, "## 历史记录")
     call setline(22, "")
     call setline(23, "1.  [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATED THE FILE.")
-    call setline(24, "")
     call cursor(1, 2)
 endfunction
 

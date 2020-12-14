@@ -52,6 +52,7 @@ HTTP Server，该软件拥有大量配置参数，完全需要使用者根据自
 | 编号 | 子项目名 | 路径 |
 | --- | --- | --- |
 | 1 | GitIgnore | `GitIgnore` |
+| 2 | VimEditor | `VimEditor` |
 
 ## 安装使用
 
