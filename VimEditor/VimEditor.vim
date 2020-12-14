@@ -31,6 +31,7 @@
 " 6. [2020-12-02] [TsePing Chai] 增加自动补全各种括号的功能。
 " 7. [2020-12-03] [TsePing Chai] 添加常用文件类型的模板。
 " 8. [2020-12-14] [TsePing Chai] 增加单行注释和反注释的功能。
+" 9. [2020-12-15] [TsePing Chai] T26：修复 PlainText 和 C/C++ 配置错误。
 
 if (has("autocmd"))
     autocmd BufRead,BufNewFile * call DefaultConfigsSwitcher()
@@ -587,7 +588,7 @@ endfunction
 " 异常：N/A
 " 描述：适用于 *.txt 和 *.md 文件的配置。
 function PlainTextConfigs()
-    if (g:core_configs_switcher = 0)
+    if (g:core_configs_switcher == 0)
         call TurnCoreConfigsOn(4, 79)
         let g:core_configs_switcher = 1
     endif
@@ -662,7 +663,7 @@ endfunction
 function ANSICAndCPlusPlusConfigs()
     if (g:core_configs_switcher == 0)
         call TurnCoreConfigsOn(4, 79)
-        let g:CoreConfigsSwitcher = 1
+        let g:core_configs_switcher = 1
     endif
 
     " 开启新行时使用自动缩进。适用于 C 这样的程序，但或许也能用于其它语言。
