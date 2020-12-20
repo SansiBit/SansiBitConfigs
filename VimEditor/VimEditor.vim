@@ -522,7 +522,6 @@ function CommentCurrentLine(comment_flag)
                 \strpart(getline('.'), l:whitespace_num, strlen(a:comment_flag))
         let l:potential_comment_tag_space =
                 \strpart(getline('.'), l:whitespace_num, strlen(a:comment_flag) + 1)
-        let l:potential_comment_tag_space
         " 如果有效字符的最开始是注释标注，说明是注释行，需要反注释。
         if (l:potential_comment_tag_space ==# a:comment_flag . " ")
             let l:modified_line_text = [
