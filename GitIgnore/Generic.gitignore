@@ -19,7 +19,7 @@
 # 规范：SansiBit Guideline Suite V0.0.1
 # 描述：通用的 Git Ignore 配置。
 
-# 0. [2020-11-07] [TsePing Chai] CREATED THE FILE.
+# 0. [2020-11-07] [TsePing Chai] CREATE THE FILE AND START A NEW JOURNAL.
 # 1. [2020-11-11] [TsePing Chai] 修复 *.log 的正则表达式错误。
 
 *.log

@@ -20,7 +20,7 @@
 " 描述：Vim Editor 的配置文件，包含核心配置参数，以及一些文件的模板。
 " 配置文件将与 PuTTY，WSL，Terminal 兼容，但是没有在 GUI 界面做测试。
 
-" 0. [2020-11-15] [TsePing Chai] CREATED THE FILE.
+" 0. [2020-11-15] [TsePing Chai] CREATE THE FILE AND START A NEW JOURNAL.
 " 1. [2020-11-28] [TsePing Chai] 将 GenericConfigs() 分离成 DefaultConfigs() 和
 "    CoreConfigs()，同时也将 ResetGenericConfigs() 配套分离。
 " 2. [2020-11-29] [TsePing Chai] 设置 showtabline 为始终显示。
@@ -485,7 +485,7 @@ function InsertCodeFileHeader(comment_flag)
     call setline(19, a:comment_flag . " 规范：SansiBit Guideline Suite V0.0.1")
     call setline(20, a:comment_flag . " 描述：")
     call setline(21, "")
-    call setline(22, a:comment_flag . " 0. [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATED THE FILE.")
+    call setline(22, a:comment_flag . " 0. [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATE THE FILE AND START A NEW JOURNAL.")
     call setline(23, "")
     call cursor(1, strlen(a:comment_flag) + 1)
 endfunction
@@ -576,7 +576,7 @@ function CreatePlainTextFileConfigs()
     call setline(20, "")
     call setline(21, "## 历史记录")
     call setline(22, "")
-    call setline(23, "1.  [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATED THE FILE.")
+    call setline(23, "1.  [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATE THE FILE AND START A NEW JOURNAL.")
     call cursor(1, 2)
 endfunction
 
@@ -785,7 +785,7 @@ function CreateTeXFileConfigs()
     call setline(9,  "")
     call setline(10, "")
     call setline(11, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-    call setline(12, "% 1. [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATED THE FILE.")
+    call setline(12, "% 1. [" . strftime("%Y-%m-%d") . "] [" . g:user_name . "] CREATE THE FILE AND START A NEW JOURNAL.")
     call setline(13, "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
     call cursor(6, 9)
 endfunction

@@ -27,4 +27,4 @@ GitIgnore 是 SansiBitConfigs 的子项目之一，为 Git 仓库提供通用的
 
 ## 历史记录
 
-1.  [2020-11-10] [TsePing Chai] CREATED THE FILE.
+1.  [2020-11-10] [TsePing Chai] CREATE THE FILE AND START A NEW JOURNAL.
