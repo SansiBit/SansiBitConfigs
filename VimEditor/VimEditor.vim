@@ -35,26 +35,31 @@
 " 10. [2020-12-25] [TsePing Chai] T31：使用标签打开多个文件，可以正确应用配置。
 
 if (has("autocmd"))
-    autocmd BufRead,BufNewFile * call DefaultConfigsSwitcher(1)
+    autocmd BufRead,BufNewFile,TabEnter * call DefaultConfigsSwitcher(1)
 
     autocmd BufNewFile *.txt,*.md call CreatePlainTextFileConfigs()
     autocmd BufRead,BufNewFile *.txt,*.md call PlainTextConfigs()
+    autocmd TabEnter *.txt,*.md call CoreConfigsSwitcher(1)
 
     autocmd BufNewFile *.h call CreateANSICHeaderFileConfigs()
     autocmd BufNewFile *.hpp call CreateCPlusPlusHeaderFileConfigs()
     autocmd BufNewFile *.c,*.cc,*.cpp,*.cxx call CreateCAndCPlusPlusSrcFileConfigs()
     autocmd BufRead,BufNewFile *.c,*.h,*.cc,*.cpp,*.cxx,*.hpp call ANSICAndCPlusPlusConfigs()
+    autocmd TabEnter *.c,*.h,*.cc,*.cpp,*.cxx,*.hpp call CoreConfigsSwitcher(1)
 
     autocmd BufNewFile *.conf call CreateConfFileConfigs()
     autocmd BufRead,BufNewFile *.conf call ConfConfigs()
     autocmd BufNewFile *.ini call CreateIniFileConfigs()
     autocmd BufRead,BufNewFile *.ini call IniConfigs()
+    autocmd TabEnter *.ini call CoreConfigsSwitcher(1)
 
     autocmd BufNewFile *.vim call CreateVimScriptFileConfigs()
     autocmd BufRead,BufNewFile *.vim call VimScriptConfigs()
+    autocmd TabEnter *.vim call CoreConfigsSwitcher(1)
 
     autocmd BufNewFile *.tex call CreateTeXFileConfigs()
     autocmd BufRead,BufNewFile *.tex call TeXConfigs()
+    autocmd TabEnter *.tex call CoreConfigsSwitcher(1)
 endif
 
 let mapleader = ";"
@@ -68,10 +73,12 @@ let g:user_company  = "SansiBit.com"
 let g:user_name     = "TsePing Chai"
 let g:user_email    = "TsPChai@Outlook.com"
 
-" 函数调用的开关。
+" 全局变量。
 let g:default_configs_switcher  = 0
 let g:core_configs_switcher     = 0
 let g:format_options_switcher   = 0
+let g:tabstop   = 4
+let g:textwidth = 79
 
 " 函数：DefaultConfigsSwitcher
 " 参数：switcher_tag: 1 表示强制开启；0 表示强制关闭，-1 表示自动匹配。
@@ -103,14 +110,14 @@ endfunction
 " 描述：开启或重置 CoreConfigs 配置。
 function CoreConfigsSwitcher(switcher_tag)
     if (a:switcher_tag == 1)
-        call TurnCoreConfigsOn(4, 79)
+        call TurnCoreConfigsOn(g:tabstop, g:textwidth)
         let g:core_configs_switcher = 1
     elseif (a:switcher_tag == 0)
         call TurnCoreConfigsOff()
         let g:core_configs_switcher = 0
     elseif (a:switcher_tag == -1)
         if (g:core_configs_switcher == 0)
-            call TurnCoreConfigsOn(4, 79)
+            call TurnCoreConfigsOn(g:tabstop, g:textwidth)
             let g:core_configs_switcher = 1
         elseif (g:core_configs_switcher == 1)
             call TurnCoreConfigsOff()
@@ -611,8 +618,9 @@ endfunction
 " 异常：N/A
 " 描述：适用于 *.txt 和 *.md 文件的配置。
 function PlainTextConfigs()
-    call TurnCoreConfigsOn(4, 79)
-    let g:core_configs_switcher = 1
+    let g:tabstop = 4
+    let g:textwidth = 79
+    call CoreConfigsSwitcher(1)
 
     " 行快速插入目录项。
     nnoremap <Leader><C-I> :call InsertTextAtCurrentPosition("1.  [](#)")<CR>
@@ -682,8 +690,9 @@ endfunction
 " 异常：N/A
 " 描述：应用 C/C++ 的配置参数。
 function ANSICAndCPlusPlusConfigs()
-    call TurnCoreConfigsOn(4, 79)
-    let g:core_configs_switcher = 1
+    let g:tabstop = 4
+    let g:textwidth = 79
+    call CoreConfigsSwitcher(1)
 
     " 开启新行时使用自动缩进。适用于 C 这样的程序，但或许也能用于其它语言。
     " 'cinoptions' 影响 'cindent' 重新缩进 C/C++ 程序行的方式。
@@ -722,8 +731,9 @@ endfunction
 " 异常：N/A
 " 描述：适用于配置文件的配置参数。
 function ConfConfigs()
-    call TurnCoreConfigsOn(4, 79)
-    let g:core_configs_switcher = 1
+    let g:tabstop = 4
+    let g:textwidth = 79
+    call CoreConfigsSwitcher(1)
 
     " 适用于 # 注释符的组合键。
     nnoremap <Leader><C-K> :call CommentCurrentLine("#")<CR>
@@ -744,8 +754,9 @@ endfunction
 " 异常：N/A
 " 描述：适用于配置文件的配置参数。
 function IniConfigs()
-    call TurnCoreConfigsOn(4, 79)
-    let g:core_configs_switcher = 1
+    let g:tabstop = 4
+    let g:textwidth = 79
+    call CoreConfigsSwitcher(1)
 
     " 适用于 # 注释符的组合键。
     nnoremap <Leader><C-K> :call CommentCurrentLine(";")<CR>
@@ -770,8 +781,9 @@ endfunction
 " 异常：N/A
 " 描述：适用于 VimScript 的配置参数。
 function VimScriptConfigs()
-    call TurnCoreConfigsOn(4, 79)
-    let g:core_configs_switcher = 1
+    let g:tabstop = 4
+    let g:textwidth = 79
+    call CoreConfigsSwitcher(1)
 
     " 适用于 VimScript 的组合键。
     nnoremap <Leader><C-F> :call InsertFunctionComment("\"")<CR>
@@ -811,8 +823,9 @@ endfunction
 " 异常：N/A
 " 描述：使用于 TeX 的配置参数。
 function TeXConfigs()
-    call TurnCoreConfigsOn(4, 79)
-    let g:core_configs_switcher = 1
+    let g:tabstop = 4
+    let g:textwidth = 79
+    call CoreConfigsSwitcher(1)
 
     " 适用于 TeX 的组合键。
     nnoremap <Leader><C-K> :call CommentCurrentLine("%")<CR>
