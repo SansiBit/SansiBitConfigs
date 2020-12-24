@@ -33,8 +33,11 @@
 " 8. [2020-12-14] [TsePing Chai] 增加单行注释和反注释的功能。
 " 9. [2020-12-15] [TsePing Chai] T26：修复 PlainText 和 C/C++ 配置错误。
 " 10. [2020-12-25] [TsePing Chai] T31：使用标签打开多个文件，可以正确应用配置。
+" 11. [2020-12-25] [TsePing Chai] T33：更改终端尺寸，重新渲染列高亮。
 
 if (has("autocmd"))
+    autocmd VimResized * call RenderColorColumn(g:textwidth)
+
     autocmd BufRead,BufNewFile,TabEnter * call DefaultConfigsSwitcher(1)
 
     autocmd BufNewFile *.txt,*.md call CreatePlainTextFileConfigs()
@@ -77,8 +80,8 @@ let g:user_email    = "TsPChai@Outlook.com"
 let g:default_configs_switcher  = 0
 let g:core_configs_switcher     = 0
 let g:format_options_switcher   = 0
-let g:tabstop   = 4
-let g:textwidth = 79
+let g:tabstop   = 8
+let g:textwidth = 0
 
 " 函数：DefaultConfigsSwitcher
 " 参数：switcher_tag: 1 表示强制开启；0 表示强制关闭，-1 表示自动匹配。
@@ -409,22 +412,8 @@ function TurnCoreConfigsOn(table_stop, text_width)
     " 而不是在屏幕上可以显示的最后一个字符上回绕长行。
     let &linebreak = 1
 
-    " 'colorcolumn' 是逗号分隔的屏幕列的列表。
-    " 这些列会用 ColorColumn hl-ColorColumn 高亮。
-    if (a:text_width == 79)
-        let &colorcolumn = "+1,+21"
-    elseif (a:text_width == 99)
-        let &colorcolumn = "+1,+21"
-    elseif (a:text_width == 119)
-        let &colorcolumn = "+1"
-    endif
-    if (&t_Co > 2)
-        highlight ColorColumn cterm=bold ctermfg=White ctermbg=Blue
-    endif
-    " 如果屏幕宽度小于 colorcolumn，不应该再高亮。
-    if (&columns < a:text_width + 1 + &numberwidth)
-        let &colorcolumn = ""
-    end
+    " 显示列高亮。
+    call RenderColorColumn(a:text_width)
 
     " 当前窗口使用的折叠方式。
     let &foldmethod = "indent"
@@ -575,6 +564,31 @@ function CommentCurrentLine(comment_flag)
         endif
         call setline(line('.'), join(l:modified_line_text, ""))
     endif
+endfunction
+
+
+" 函数：RenderColorColumn
+" 参数：text_width: 指定的一行文字宽度。
+" 返回：N/A
+" 异常：N/A
+" 描述：渲染列高亮
+function RenderColorColumn(text_width)
+    " 'colorcolumn' 是逗号分隔的屏幕列的列表。
+    " 这些列会用 ColorColumn hl-ColorColumn 高亮。
+    if (a:text_width == 79)
+        let &colorcolumn = "+1,+21"
+    elseif (a:text_width == 99)
+        let &colorcolumn = "+1,+21"
+    elseif (a:text_width == 119)
+        let &colorcolumn = "+1"
+    endif
+    if (&t_Co > 2)
+        highlight ColorColumn cterm=bold ctermfg=White ctermbg=Blue
+    endif
+    " 如果屏幕宽度小于 colorcolumn，不应该再高亮。
+    if (&columns < a:text_width + 1 + &numberwidth)
+        let &colorcolumn = ""
+    end
 endfunction
 
 " START PLAIN TEXT FILE CONFIGURATIONS """"""""""""""""""""""""""""""""""""""""
