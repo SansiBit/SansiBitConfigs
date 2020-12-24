@@ -32,9 +32,10 @@
 " 7. [2020-12-03] [TsePing Chai] 添加常用文件类型的模板。
 " 8. [2020-12-14] [TsePing Chai] 增加单行注释和反注释的功能。
 " 9. [2020-12-15] [TsePing Chai] T26：修复 PlainText 和 C/C++ 配置错误。
+" 10. [2020-12-25] [TsePing Chai] T31：使用标签打开多个文件，可以正确应用配置。
 
 if (has("autocmd"))
-    autocmd BufRead,BufNewFile * call DefaultConfigsSwitcher()
+    autocmd BufRead,BufNewFile * call DefaultConfigsSwitcher(1)
 
     autocmd BufNewFile *.txt,*.md call CreatePlainTextFileConfigs()
     autocmd BufRead,BufNewFile *.txt,*.md call PlainTextConfigs()
@@ -57,9 +58,9 @@ if (has("autocmd"))
 endif
 
 let mapleader = ";"
-nnoremap <Leader><C-D> :call DefaultConfigsSwitcher()<CR>
-nnoremap <Leader><C-A> :call CoreConfigsSwitcher()<CR>
-nnoremap <Leader><C-W> :call FormatOptionsSwitcher()<CR>
+nnoremap <Leader><C-D> :call DefaultConfigsSwitcher(-1)<CR>
+nnoremap <Leader><C-A> :call CoreConfigsSwitcher(-1)<CR>
+nnoremap <Leader><C-W> :call FormatOptionsSwitcher(-1)<CR>
 nnoremap <Leader><C-T> :call InsertTextAtCurrentPosition(strftime("%Y-%m-%d"))<CR>
 
 " 用户的基本信息
@@ -73,47 +74,71 @@ let g:core_configs_switcher     = 0
 let g:format_options_switcher   = 0
 
 " 函数：DefaultConfigsSwitcher
-" 参数：N/A
+" 参数：switcher_tag: 1 表示强制开启；0 表示强制关闭，-1 表示自动匹配。
 " 返回：N/A
 " 异常：N/A
 " 描述：开启或重置 DefaultConfigs 配置。
-function DefaultConfigsSwitcher()
-    if (g:default_configs_switcher == 0)
+function DefaultConfigsSwitcher(switcher_tag)
+    if (a:switcher_tag == 1)
         call TurnDefaultConfigsOn()
         let g:default_configs_switcher = 1
-    else
+    elseif (a:switcher_tag == 0)
         call TurnDefaultConfigsOff()
         let g:default_configs_switcher = 0
+    elseif (a:switcher_tag == -1)
+        if (g:default_configs_switcher == 0)
+            call TurnDefaultConfigsOn()
+            let g:default_configs_switcher = 1
+        elseif (g:default_configs_switcher == 1)
+            call TurnDefaultConfigsOff()
+            let g:default_configs_switcher = 0
+        endif
     endif
 endfunction
 
 " 函数：CoreConfigsSwitcher
-" 参数：N/A
+" 参数：switcher_tag: 1 表示强制开启；0 表示强制关闭，-1 表示自动匹配。
 " 返回：N/A
 " 异常：N/A
 " 描述：开启或重置 CoreConfigs 配置。
-function CoreConfigsSwitcher()
-    if (g:core_configs_switcher == 0)
+function CoreConfigsSwitcher(switcher_tag)
+    if (a:switcher_tag == 1)
         call TurnCoreConfigsOn(4, 79)
         let g:core_configs_switcher = 1
-    else
+    elseif (a:switcher_tag == 0)
         call TurnCoreConfigsOff()
         let g:core_configs_switcher = 0
+    elseif (a:switcher_tag == -1)
+        if (g:core_configs_switcher == 0)
+            call TurnCoreConfigsOn(4, 79)
+            let g:core_configs_switcher = 1
+        elseif (g:core_configs_switcher == 1)
+            call TurnCoreConfigsOff()
+            let g:core_configs_switcher = 0
+        endif
     endif
 endfunction
 
 " 函数：FormatOptionsSwitcher
-" 参数：N/A
+" 参数：switcher_tag: 1 表示强制开启；0 表示强制关闭，-1 表示自动匹配。
 " 返回：N/A
 " 异常：N/A
 " 描述：formatoptions 是否加入 w 参数，formatoptions 初始值是有 w 参数的。
-function FormatOptionsSwitcher()
-    if (g:format_options_switcher == 0)
+function FormatOptionsSwitcher(switcher_tag)
+    if (a:switcher_tag == 1)
         set formatoptions-=w
         let g:format_options_switcher = 1
-    else
+    elseif (a:switcher_tag == 0)
         set formatoptions+=w
         let g:format_options_switcher = 0
+    elseif (a:switcher_tag == -1)
+        if (g:format_options_switcher == 0)
+            set formatoptions-=w
+            let g:format_options_switcher = 1
+        elseif (g:format_options_switcher == 1)
+            set formatoptions+=w
+            let g:format_options_switcher = 0
+        endif
     endif
 endfunction
 
@@ -586,10 +611,8 @@ endfunction
 " 异常：N/A
 " 描述：适用于 *.txt 和 *.md 文件的配置。
 function PlainTextConfigs()
-    if (g:core_configs_switcher == 0)
-        call TurnCoreConfigsOn(4, 79)
-        let g:core_configs_switcher = 1
-    endif
+    call TurnCoreConfigsOn(4, 79)
+    let g:core_configs_switcher = 1
 
     " 行快速插入目录项。
     nnoremap <Leader><C-I> :call InsertTextAtCurrentPosition("1.  [](#)")<CR>
@@ -659,10 +682,8 @@ endfunction
 " 异常：N/A
 " 描述：应用 C/C++ 的配置参数。
 function ANSICAndCPlusPlusConfigs()
-    if (g:core_configs_switcher == 0)
-        call TurnCoreConfigsOn(4, 79)
-        let g:core_configs_switcher = 1
-    endif
+    call TurnCoreConfigsOn(4, 79)
+    let g:core_configs_switcher = 1
 
     " 开启新行时使用自动缩进。适用于 C 这样的程序，但或许也能用于其它语言。
     " 'cinoptions' 影响 'cindent' 重新缩进 C/C++ 程序行的方式。
@@ -701,10 +722,8 @@ endfunction
 " 异常：N/A
 " 描述：适用于配置文件的配置参数。
 function ConfConfigs()
-    if (g:core_configs_switcher == 0)
-        call TurnCoreConfigsOn(4, 79)
-        let g:core_configs_switcher = 1
-    endif
+    call TurnCoreConfigsOn(4, 79)
+    let g:core_configs_switcher = 1
 
     " 适用于 # 注释符的组合键。
     nnoremap <Leader><C-K> :call CommentCurrentLine("#")<CR>
@@ -725,10 +744,8 @@ endfunction
 " 异常：N/A
 " 描述：适用于配置文件的配置参数。
 function IniConfigs()
-    if (g:core_configs_switcher == 0)
-        call TurnCoreConfigsOn(4, 79)
-        let g:core_configs_switcher = 1
-    endif
+    call TurnCoreConfigsOn(4, 79)
+    let g:core_configs_switcher = 1
 
     " 适用于 # 注释符的组合键。
     nnoremap <Leader><C-K> :call CommentCurrentLine(";")<CR>
@@ -753,10 +770,8 @@ endfunction
 " 异常：N/A
 " 描述：适用于 VimScript 的配置参数。
 function VimScriptConfigs()
-    if (g:core_configs_switcher == 0)
-        call TurnCoreConfigsOn(4, 79)
-        let g:core_configs_switcher = 1
-    endif
+    call TurnCoreConfigsOn(4, 79)
+    let g:core_configs_switcher = 1
 
     " 适用于 VimScript 的组合键。
     nnoremap <Leader><C-F> :call InsertFunctionComment("\"")<CR>
@@ -796,10 +811,8 @@ endfunction
 " 异常：N/A
 " 描述：使用于 TeX 的配置参数。
 function TeXConfigs()
-    if (g:core_configs_switcher == 0)
-        call TurnCoreConfigsOn(4, 79)
-        let g:core_configs_switcher = 1
-    endif
+    call TurnCoreConfigsOn(4, 79)
+    let g:core_configs_switcher = 1
 
     " 适用于 TeX 的组合键。
     nnoremap <Leader><C-K> :call CommentCurrentLine("%")<CR>
