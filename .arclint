@@ -1,0 +1,14 @@
+{
+	"linters": {
+		"JSON": {
+			"type": "json",
+			"include": ["(^\\.arcconfig$)", "(^\\.arclint$)", "(\\.json$)"]
+		},
+		"MERGE-CONFLICT": {
+			"type": "merge-conflict"
+		},
+		"SPELLING": {
+			"type": "spelling"
+		}
+	}
+}
