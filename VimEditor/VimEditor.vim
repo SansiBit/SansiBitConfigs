@@ -457,10 +457,10 @@ function TurnCoreConfigsOn(table_stop, text_width)
     " 用于看到制表和空格的区别以及拖尾的空白。
     let &list = 1
     " {@code list} 模式下显示用的字符。
-    let &listchars = "eol:¶,tab:→→,trail:·,extends:<,precedes:>,nbsp:+"
+    let &listchars = "eol:¶,space:·,tab:→→,trail:·,extends:<,precedes:>,nbsp:+"
     if (&t_Co > 2)
-        highlight NonText cterm=bold ctermfg=Black ctermbg=White
-        highlight SpecialKey cterm=bold ctermfg=Black ctermbg=White
+        highlight NonText cterm=NONE ctermfg=Black ctermbg=White
+        highlight SpecialKey cterm=NONE ctermfg=Grey
     endif
 
     " 在每行前面显示行号。
