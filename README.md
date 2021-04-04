@@ -49,6 +49,7 @@ Redis，软件官方提供了原始的配置文件，因此在此基础上进行
 | 子项目名 | 路径 |
 | --- | --- |
 | GitIgnore | `./GitIgnore` |
+| VimEditor | `./VimEditor` |
 
 ## 联系方式
 
